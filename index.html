@@ -1,0 +1,596 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>ラーメン二郎 コールオーダー用紙</title>
+    <style>
+        :root {
+            --primary-red: #c9171e;
+            --dark-red: #9e1117;
+            --paper-bg: #fdfcf7;
+            --border-color: #333;
+            --accent-bg: #f4f2e9;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #eef2f3;
+            color: #222;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .container {
+            width: 100%;
+            max-width: 650px;
+            background: var(--paper-bg);
+            border: 3px solid var(--border-color);
+            border-radius: 8px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.15);
+            padding: 24px;
+            box-sizing: border-box;
+        }
+
+        /* ヘッダー */
+        .header {
+            border-bottom: 2px solid var(--primary-red);
+            padding-bottom: 12px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: flex-end;
+        }
+
+        .title-area h1 {
+            margin: 0;
+            font-size: 1.4rem;
+            color: var(--primary-red);
+            letter-spacing: 1px;
+        }
+
+        .title-area p {
+            margin: 4px 0 0 0;
+            font-size: 0.85rem;
+            color: #666;
+        }
+
+        .lang-select-box select {
+            padding: 6px 10px;
+            font-size: 0.9rem;
+            border: 2px solid var(--border-color);
+            border-radius: 4px;
+            background: #fff;
+            cursor: pointer;
+        }
+
+        /* セクション */
+        .option-group {
+            margin-bottom: 16px;
+            border: 1px solid #ccc;
+            border-radius: 6px;
+            padding: 12px;
+            background: #fff;
+        }
+
+        .option-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: baseline;
+            margin-bottom: 10px;
+        }
+
+        .option-name {
+            font-weight: bold;
+            font-size: 1.05rem;
+            color: #111;
+        }
+
+        .option-sub {
+            font-size: 0.8rem;
+            color: #777;
+        }
+
+        /* ラジオボタングリッド */
+        .radio-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 8px;
+        }
+
+        .radio-grid.cols-2 {
+            grid-template-columns: repeat(2, 1fr);
+        }
+
+        @media (max-width: 480px) {
+            .radio-grid, .radio-grid.cols-2 {
+                grid-template-columns: repeat(2, 1fr);
+            }
+        }
+
+        .radio-card {
+            border: 2px solid #ddd;
+            border-radius: 6px;
+            padding: 8px 4px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            background: #fafafa;
+        }
+
+        .radio-card:hover {
+            border-color: var(--primary-red);
+            background: var(--accent-bg);
+        }
+
+        .radio-card input {
+            display: none;
+        }
+
+        .radio-card input:checked + .card-content {
+            color: var(--primary-red);
+            font-weight: bold;
+        }
+
+        .radio-card input:checked ~ .card-content .jiro-tag {
+            background: var(--primary-red);
+            color: #fff;
+        }
+
+        .card-content {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+            font-size: 0.85rem;
+        }
+
+        .jiro-tag {
+            font-size: 0.7rem;
+            background: #e0e0e0;
+            color: #333;
+            padding: 2px 4px;
+            border-radius: 3px;
+            display: inline-block;
+            margin-top: 2px;
+            transition: all 0.2s;
+        }
+
+        /* 結果エリア */
+        .result-box {
+            background: var(--accent-bg);
+            border: 2px dashed var(--primary-red);
+            border-radius: 6px;
+            padding: 16px;
+            margin-top: 20px;
+        }
+
+        .result-box h2 {
+            margin: 0 0 10px 0;
+            font-size: 1rem;
+            color: var(--dark-red);
+        }
+
+        .result-row {
+            margin-bottom: 8px;
+            font-size: 0.9rem;
+        }
+
+        .result-row span.label {
+            font-weight: bold;
+            display: inline-block;
+            width: 75px;
+            color: #444;
+        }
+
+        .result-text {
+            font-size: 1.15rem;
+            font-weight: bold;
+            color: #000;
+            background: #fff;
+            padding: 8px 12px;
+            border: 1px solid #ccc;
+            border-radius: 4px;
+            word-break: break-all;
+        }
+
+        /* ボタン群 */
+        .btn-container {
+            display: flex;
+            gap: 10px;
+            margin-top: 14px;
+        }
+
+        .action-btn {
+            flex: 1;
+            padding: 10px;
+            font-size: 0.95rem;
+            font-weight: bold;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: background 0.2s;
+        }
+
+        .btn-speak {
+            background-color: var(--primary-red);
+            color: #fff;
+        }
+        .btn-speak:hover {
+            background-color: var(--dark-red);
+        }
+
+        .btn-copy {
+            background-color: #333;
+            color: #fff;
+        }
+        .btn-copy:hover {
+            background-color: #555;
+        }
+
+        .toast {
+            text-align: center;
+            font-size: 0.8rem;
+            color: #2e7d32;
+            margin-top: 6px;
+            min-height: 1.2em;
+        }
+    </style>
+</head>
+<body>
+
+<div class="container">
+    <!-- ヘッダー -->
+    <div class="header">
+        <div class="title-area">
+            <h1 id="ui-title">ラーメン二郎 コールオーダー</h1>
+            <p id="ui-subtitle">お好みにチェックを入れてください</p>
+        </div>
+        <div class="lang-select-box">
+            <select id="langSelect" onchange="changeLanguage()">
+                <option value="ja">日本語</option>
+                <option value="en">English</option>
+                <option value="zh-CN">中文 (简体)</option>
+                <option value="zh-TW">中文 (繁體)</option>
+                <option value="ko">한국어</option>
+            </select>
+        </div>
+    </div>
+
+    <!-- フォーム本体 -->
+    <div id="formContent">
+        <!-- ニンニク -->
+        <div class="option-group">
+            <div class="option-header">
+                <span class="option-name" data-key="garlic_title">にんにく (Garlic)</span>
+                <span class="option-sub" data-key="garlic_sub">生ニンニクの有無と量</span>
+            </div>
+            <div class="radio-grid" data-category="garlic">
+                <label class="radio-card">
+                    <input type="radio" name="garlic" value="none" checked onchange="updateCall()">
+                    <div class="card-content">
+                        <span data-key="opt_none">なし</span>
+                        <span class="jiro-tag">ニンニク抜き</span>
+                    </div>
+                </label>
+                <label class="radio-card">
+                    <input type="radio" name="garlic" value="normal" onchange="updateCall()">
+                    <div class="card-content">
+                        <span data-key="opt_normal">普通</span>
+                        <span class="jiro-tag">ニンニク</span>
+                    </div>
+                </label>
+                <label class="radio-card">
+                    <input type="radio" name="garlic" value="more" onchange="updateCall()">
+                    <div class="card-content">
+                        <span data-key="opt_more">多め</span>
+                        <span class="jiro-tag">ニンニクマシ</span>
+                    </div>
+                </label>
+                <label class="radio-card">
+                    <input type="radio" name="garlic" value="moshimashi" onchange="updateCall()">
+                    <div class="card-content">
+                        <span data-key="opt_moshimashi">さらに多め</span>
+                        <span class="jiro-tag">ニンニクマシマシ</span>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- ヤサイ -->
+        <div class="option-group">
+            <div class="option-header">
+                <span class="option-name" data-key="veg_title">ヤサイ (Vegetables)</span>
+                <span class="option-sub" data-key="veg_sub">もやしとキャベツの量</span>
+            </div>
+            <div class="radio-grid" data-category="veg">
+                <label class="radio-card">
+                    <input type="radio" name="veg" value="normal" checked onchange="updateCall()">
+                    <div class="card-content">
+                        <span data-key="opt_normal">普通</span>
+                        <span class="jiro-tag">（そのまま）</span>
+                    </div>
+                </label>
+                <label class="radio-card">
+                    <input type="radio" name="veg" value="more" onchange="updateCall()">
+                    <div class="card-content">
+                        <span data-key="opt_more">多め</span>
+                        <span class="jiro-tag">ヤサイマシ</span>
+                    </div>
+                </label>
+                <label class="radio-card">
+                    <input type="radio" name="veg" value="moshimashi" onchange="updateCall()">
+                    <div class="card-content">
+                        <span data-key="opt_moshimashi">さらに多め</span>
+                        <span class="jiro-tag">ヤサイマシマシ</span>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- アブラ -->
+        <div class="option-group">
+            <div class="option-header">
+                <span class="option-name" data-key="fat_title">アブラ (Back Fat)</span>
+                <span class="option-sub" data-key="fat_sub">背脂の量</span>
+            </div>
+            <div class="radio-grid" data-category="fat">
+                <label class="radio-card">
+                    <input type="radio" name="fat" value="none" checked onchange="updateCall()">
+                    <div class="card-content">
+                        <span data-key="opt_none">なし</span>
+                        <span class="jiro-tag">アブラ抜き</span>
+                    </div>
+                </label>
+                <label class="radio-card">
+                    <input type="radio" name="fat" value="normal" checked onchange="updateCall()">
+                    <div class="card-content">
+                        <span data-key="opt_normal">普通</span>
+                        <span class="jiro-tag">（そのまま）</span>
+                    </div>
+                </label>
+                <label class="radio-card">
+                    <input type="radio" name="fat" value="more" onchange="updateCall()">
+                    <div class="card-content">
+                        <span data-key="opt_more">多め</span>
+                        <span class="jiro-tag">アブラマシ</span>
+                    </div>
+                </label>
+                <label class="radio-card">
+                    <input type="radio" name="fat" value="moshimashi" onchange="updateCall()">
+                    <div class="card-content">
+                        <span data-key="opt_moshimashi">さらに多め</span>
+                        <span class="jiro-tag">アブラマシマシ</span>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <!-- カラメ -->
+        <div class="option-group">
+            <div class="option-header">
+                <span class="option-name" data-key="sauce_title">カラメ (Soy Sauce)</span>
+                <span class="option-sub" data-key="sauce_sub">醤油ダレ（追加）の有無</span>
+            </div>
+            <div class="radio-grid cols-2" data-category="sauce">
+                <label class="radio-card">
+                    <input type="radio" name="sauce" value="none" checked onchange="updateCall()">
+                    <div class="card-content">
+                        <span data-key="opt_none">なし</span>
+                        <span class="jiro-tag">（そのまま）</span>
+                    </div>
+                </label>
+                <label class="radio-card">
+                    <input type="radio" name="sauce" value="more" onchange="updateCall()">
+                    <div class="card-content">
+                        <span data-key="opt_sauce_add">追加する</span>
+                        <span class="jiro-tag">カラメ</span>
+                    </div>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- 結果表示エリア -->
+    <div class="result-box">
+        <h2 data-key="res_title">生成されたコール（注文文）</h2>
+        <div class="result-row">
+            <span class="label">漢字:</span>
+            <div class="result-text" id="resKanji">そのままで</div>
+        </div>
+        <div class="result-row" style="margin-top: 8px;">
+            <span class="label">ひらがな:</span>
+            <div class="result-text" id="resKana" style="font-size: 1.05rem;">そのままで</div>
+        </div>
+        <div class="result-row" style="margin-top: 8px;">
+            <span class="label">ローマ字:</span>
+            <div class="result-text" id="resRomaji" style="font-size: 1rem; color: #555;">sonomama de</div>
+        </div>
+
+        <div class="btn-container">
+            <button class="action-btn btn-speak" onclick="speakCall()" data-key="btn_speak">🔊 音声で再生する</button>
+            <button class="action-btn btn-copy" onclick="copyCall()" data-key="btn_copy">📋 コピーする</button>
+        </div>
+        <div class="toast" id="toastMsg"></div>
+    </div>
+</div>
+
+<script>
+    // 多言語辞書
+    const i18n = {
+        ja: {
+            title: "ラーメン二郎 コールオーダー",
+            subtitle: "お好みにチェックを入れてください",
+            garlic_title: "にんにく (Garlic)", garlic_sub: "生ニンニクの有無と量",
+            veg_title: "ヤサイ (Vegetables)", veg_sub: "もやしとキャベツの量",
+            fat_title: "アブラ (Back Fat)", fat_sub: "背脂の量",
+            sauce_title: "カラメ (Soy Sauce)", sauce_sub: "醤油ダレ（追加）の有無",
+            opt_none: "なし", opt_normal: "普通", opt_more: "多め", opt_moshimashi: "さらに多め", opt_sauce_add: "追加する",
+            res_title: "生成されたコール（注文文）",
+            btn_speak: "🔊 音声で再生する", btn_copy: "📋 コピーする",
+            copied: "コピーしました！"
+        },
+        en: {
+            title: "Ramen Jiro Call Order",
+            subtitle: "Select your preferences",
+            garlic_title: "Garlic (Ninniku)", garlic_sub: "Amount of raw garlic",
+            veg_title: "Vegetables (Yasai)", veg_sub: "Amount of sprouts & cabbage",
+            fat_title: "Back Fat (Abura)", fat_sub: "Amount of pork back fat",
+            sauce_title: "Soy Sauce (Karame)", sauce_sub: "Extra soup sauce",
+            opt_none: "None", opt_normal: "Normal", opt_more: "Extra", opt_moshimashi: "Double Extra", opt_sauce_add: "Add",
+            res_title: "Generated Call",
+            btn_speak: "🔊 Speak Call", btn_copy: "📋 Copy",
+            copied: "Copied to clipboard!"
+        },
+        "zh-CN": {
+            title: "拉面次郎 点单配置",
+            subtitle: "请选择您的偏好设置",
+            garlic_title: "大蒜 (Ninniku)", garlic_sub: "生蒜的份量",
+            veg_title: "蔬菜 (Yasai)", veg_sub: "豆芽和卷心菜的份量",
+            fat_title: "猪背脂 (Abura)", fat_sub: "背脂的份量",
+            sauce_title: "酱油酱汁 (Karame)", sauce_sub: "是否增加酱汁",
+            opt_none: "不要", opt_normal: "普通", opt_more: "多", opt_moshimashi: "超多", opt_sauce_add: "加量",
+            res_title: "生成的点单暗号 (Call)",
+            btn_speak: "🔊 语音播放", btn_copy: "📋 复制文本",
+            copied: "已复制!"
+        },
+        "zh-TW": {
+            title: "拉麵次郎 點單配置",
+            subtitle: "請選擇您的偏好設定",
+            garlic_title: "大蒜 (Ninniku)", garlic_sub: "生蒜的份量",
+            veg_title: "蔬菜 (Yasai)", veg_sub: "豆芽和高麗菜的份量",
+            fat_title: "豬背脂 (Abura)", fat_sub: "背脂的份量",
+            sauce_title: "醬油醬汁 (Karame)", sauce_sub: "是否增加醬汁",
+            opt_none: "不要", opt_normal: "普通", opt_more: "多", opt_moshimashi: "超多", opt_sauce_add: "加量",
+            res_title: "產生的點單暗號 (Call)",
+            btn_speak: "🔊 語音播放", btn_copy: "📋 複製文字",
+            copied: "已複製!"
+        },
+        ko: {
+            title: "라면 지로 콜 오더",
+            subtitle: "원하시는 옵션을 선택하세요",
+            garlic_title: "마늘 (Ninniku)", garlic_sub: "생마늘 유무 및 양",
+            veg_title: "야채 (Yasai)", veg_sub: "숙주와 양배추 양",
+            fat_title: "기름 (Abura)", fat_sub: "등기름 양",
+            sauce_title: "간장 (Karame)", sauce_sub: "추가 간장 소스 유무",
+            opt_none: "없음", opt_normal: "보통", opt_more: "많이", opt_moshimashi: "더 많이", opt_sauce_add: "추가",
+            res_title: "생성된 콜 (주문 내용)",
+            btn_speak: "🔊 음성으로 듣기", btn_copy: "📋 복사하기",
+            copied: "클립보드에 복사되었습니다!"
+        }
+    };
+
+    function changeLanguage() {
+        const lang = document.getElementById('langSelect').value;
+        const dict = i18n[lang];
+
+        document.querySelectorAll('[data-key]').forEach(el => {
+            const key = el.getAttribute('data-key');
+            if (dict[key]) {
+                el.innerText = dict[key];
+            }
+        });
+    }
+
+    // 完璧な二郎のコールルールに基づく生成ロジック
+    function updateCall() {
+        const garlic = document.querySelector('input[name="garlic"]:checked').value;
+        const veg = document.querySelector('input[name="veg"]:checked').value;
+        const fat = document.querySelector('input[name="fat"]:checked').value;
+        const sauce = document.querySelector('input[name="sauce"]:checked').value;
+
+        let kanjiParts = [];
+        let kanaParts = [];
+        let romajiParts = [];
+
+        // 1. ニンニクの処理（必ず何らかの意思表示になる）
+        if (garlic === 'none') {
+            kanjiParts.push('ニンニク抜き'); kanaParts.push('にんにくぬき'); romajiParts.push('ninniku nuki');
+        } else if (garlic === 'normal') {
+            kanjiParts.push('ニンニク'); kanaParts.push('にんにく'); romajiParts.push('ninniku');
+        } else if (garlic === 'more') {
+            kanjiParts.push('ニンニクマシ'); kanaParts.push('にんにくまし'); romajiParts.push('ninniku mashi');
+        } else if (garlic === 'moshimashi') {
+            kanjiParts.push('ニンニクマシマシ'); kanaParts.push('にんにくましまし'); romajiParts.push('ninniku mashi mashi');
+        }
+
+        // 2. ヤサイの処理（普通ならコールしない）
+        if (veg === 'more') {
+            kanjiParts.push('ヤサイマシ'); kanaParts.push('やさいまし'); romajiParts.push('yasai mashi');
+        } else if (veg === 'moshimashi') {
+            kanjiParts.push('ヤサイマシマシ'); kanaParts.push('やさいましまし'); romajiParts.push('yasai mashi mashi');
+        }
+
+        // 3. アブラの処理（普通・抜きならあえてコールしないことが多いが、抜きの時は明確に、普通なら省略）
+        if (fat === 'none') {
+            kanjiParts.push('アブラ抜き'); kanaParts.push('あぶらぬき'); romajiParts.push('abura nuki');
+        } else if (fat === 'more') {
+            kanjiParts.push('アブラマシ'); kanaParts.push('あぶらまし'); romajiParts.push('abura mashi');
+        } else if (fat === 'moshimashi') {
+            kanjiParts.push('アブラマシマシ'); kanaParts.push('あぶらましまし'); romajiParts.push('abura mashi mashi');
+        }
+
+        // 4. カラメの処理
+        if (sauce === 'more') {
+            kanjiParts.push('カラメ'); kanaParts.push('からめ'); romajiParts.push('karame');
+        }
+
+        let kanjiStr, kanaStr, romajiStr;
+
+        // もしすべてが「デフォルト（ニンニクなし/普通、ヤサイ普通、アブラ普通、カラメなし）」の場合は「そのままで」にする
+        const isDefault = (garlic === 'none' && veg === 'normal' && fat === 'normal' && sauce === 'none');
+
+        if (isDefault) {
+            kanjiStr = 'そのままで';
+            kanaStr = 'そのままで';
+            romajiStr = 'sonomama de';
+        } else {
+            kanjiStr = kanjiParts.join(' ');
+            kanaStr = kanaParts.join(' ');
+            romajiStr = romajiParts.join(' ');
+        }
+
+        document.getElementById('resKanji').innerText = kanjiStr;
+        document.getElementById('resKana').innerText = kanaStr;
+        document.getElementById('resRomaji').innerText = romajiStr;
+    }
+
+    // 音声読み上げ (Web Speech API)
+    function speakCall() {
+        if (!('speechSynthesis' in window)) {
+            alert('お使いのブラウザは音声読み上げに対応していません。');
+            return;
+        }
+        window.speechSynthesis.cancel();
+        const textToSpeak = document.getElementById('resKanji').innerText;
+        const utterance = new SpeechSynthesisUtterance(textToSpeak);
+        utterance.lang = 'ja-JP';
+        utterance.rate = 0.9;
+        window.speechSynthesis.speak(utterance);
+    }
+
+    // コピー機能
+    function copyCall() {
+        const text = document.getElementById('resKanji').innerText;
+        navigator.clipboard.writeText(text).then(() => {
+            const lang = document.getElementById('langSelect').value;
+            const msg = i18n[lang] ? i18n[lang].copied : "Copied!";
+            const toast = document.getElementById('toastMsg');
+            toast.innerText = msg;
+            setTimeout(() => { toast.innerText = ""; }, 2000);
+        }).catch(err => {
+            alert('コピーに失敗しました');
+        });
+    }
+
+    // 初期化実行
+    window.onload = function() {
+        updateCall();
+    };
+</script>
+
+</body>
+</html>
