@@ -3,7 +3,8 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>ラーメン二郎 コールオーダー用紙</title>
+    <title>ラーメン二郎 注文サポート</title>
+    <link rel="manifest" href="manifest.json">
     <style>
         :root {
             --primary-red: #c9171e;
@@ -36,11 +37,10 @@
             box-sizing: border-box;
         }
 
-        /* ヘッダー */
         .header {
             border-bottom: 2px solid var(--primary-red);
             padding-bottom: 12px;
-            margin-bottom: 20px;
+            margin-bottom: 16px;
             display: flex;
             justify-content: space-between;
             align-items: flex-end;
@@ -48,14 +48,14 @@
 
         .title-area h1 {
             margin: 0;
-            font-size: 1.4rem;
+            font-size: 1.3rem;
             color: var(--primary-red);
             letter-spacing: 1px;
         }
 
         .title-area p {
             margin: 4px 0 0 0;
-            font-size: 0.85rem;
+            font-size: 0.8rem;
             color: #666;
         }
 
@@ -68,9 +68,44 @@
             cursor: pointer;
         }
 
-        /* セクション */
-        .option-group {
+        .tab-nav {
+            display: flex;
+            gap: 6px;
             margin-bottom: 16px;
+            border-bottom: 2px solid #ddd;
+            padding-bottom: 8px;
+        }
+
+        .tab-btn {
+            flex: 1;
+            padding: 10px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            background: #e0e0e0;
+            border: 2px solid #ccc;
+            border-radius: 6px;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: #555;
+            text-align: center;
+        }
+
+        .tab-btn.active {
+            background: var(--primary-red);
+            color: #fff;
+            border-color: var(--dark-red);
+        }
+
+        .tab-content {
+            display: none;
+        }
+
+        .tab-content.active {
+            display: block;
+        }
+
+        .option-group {
+            margin-bottom: 14px;
             border: 1px solid #ccc;
             border-radius: 6px;
             padding: 12px;
@@ -81,25 +116,39 @@
             display: flex;
             justify-content: space-between;
             align-items: baseline;
-            margin-bottom: 10px;
+            margin-bottom: 6px;
         }
 
         .option-name {
             font-weight: bold;
-            font-size: 1.05rem;
+            font-size: 1rem;
             color: #111;
         }
 
         .option-sub {
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #777;
         }
 
-        /* ラジオボタングリッド */
+        .option-note {
+            font-size: 0.75rem;
+            color: #856404;
+            background-color: #fff3cd;
+            border: 1px solid #ffeeba;
+            padding: 6px 8px;
+            border-radius: 4px;
+            margin-bottom: 8px;
+            line-height: 1.4;
+        }
+
         .radio-grid {
             display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 6px;
+        }
+
+        .radio-grid.cols-4 {
             grid-template-columns: repeat(4, 1fr);
-            gap: 8px;
         }
 
         .radio-grid.cols-2 {
@@ -107,7 +156,7 @@
         }
 
         @media (max-width: 480px) {
-            .radio-grid, .radio-grid.cols-2 {
+            .radio-grid, .radio-grid.cols-4 {
                 grid-template-columns: repeat(2, 1fr);
             }
         }
@@ -115,7 +164,7 @@
         .radio-card {
             border: 2px solid #ddd;
             border-radius: 6px;
-            padding: 8px 4px;
+            padding: 6px 4px;
             text-align: center;
             cursor: pointer;
             transition: all 0.2s;
@@ -144,12 +193,12 @@
         .card-content {
             display: flex;
             flex-direction: column;
-            gap: 4px;
-            font-size: 0.85rem;
+            gap: 2px;
+            font-size: 0.8rem;
         }
 
         .jiro-tag {
-            font-size: 0.7rem;
+            font-size: 0.65rem;
             background: #e0e0e0;
             color: #333;
             padding: 2px 4px;
@@ -159,55 +208,101 @@
             transition: all 0.2s;
         }
 
-        /* 結果エリア */
+        /* 警告モーダル用スタイル */
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 1000;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            justify-content: center;
+            align-items: center;
+        }
+
+        .modal-content {
+            background-color: #fff;
+            padding: 20px;
+            border: 3px solid var(--primary-red);
+            border-radius: 8px;
+            width: 90%;
+            max-width: 400px;
+            text-align: center;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.3);
+        }
+
+        .modal-content h3 {
+            color: var(--primary-red);
+            margin-top: 0;
+        }
+
+        .modal-content p {
+            font-size: 0.9rem;
+            color: #333;
+            line-height: 1.5;
+            margin-bottom: 20px;
+        }
+
+        .modal-btn {
+            background-color: var(--primary-red);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            font-size: 0.9rem;
+            font-weight: bold;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
         .result-box {
             background: var(--accent-bg);
             border: 2px dashed var(--primary-red);
             border-radius: 6px;
-            padding: 16px;
-            margin-top: 20px;
+            padding: 14px;
+            margin-top: 16px;
         }
 
         .result-box h2 {
-            margin: 0 0 10px 0;
-            font-size: 1rem;
+            margin: 0 0 8px 0;
+            font-size: 0.95rem;
             color: var(--dark-red);
         }
 
         .result-row {
-            margin-bottom: 8px;
-            font-size: 0.9rem;
+            margin-bottom: 6px;
+            font-size: 0.85rem;
         }
 
         .result-row span.label {
             font-weight: bold;
             display: inline-block;
-            width: 75px;
+            width: 85px;
             color: #444;
         }
 
         .result-text {
-            font-size: 1.15rem;
+            font-size: 1.1rem;
             font-weight: bold;
             color: #000;
             background: #fff;
-            padding: 8px 12px;
+            padding: 6px 10px;
             border: 1px solid #ccc;
             border-radius: 4px;
             word-break: break-all;
         }
 
-        /* ボタン群 */
         .btn-container {
             display: flex;
             gap: 10px;
-            margin-top: 14px;
+            margin-top: 12px;
         }
 
         .action-btn {
             flex: 1;
-            padding: 10px;
-            font-size: 0.95rem;
+            padding: 8px;
+            font-size: 0.9rem;
             font-weight: bold;
             border: none;
             border-radius: 4px;
@@ -233,21 +328,20 @@
 
         .toast {
             text-align: center;
-            font-size: 0.8rem;
+            font-size: 0.75rem;
             color: #2e7d32;
-            margin-top: 6px;
-            min-height: 1.2em;
+            margin-top: 4px;
+            min-height: 1.1em;
         }
     </style>
 </head>
 <body>
 
 <div class="container">
-    <!-- ヘッダー -->
     <div class="header">
         <div class="title-area">
-            <h1 id="ui-title">ラーメン二郎 コールオーダー</h1>
-            <p id="ui-subtitle">お好みにチェックを入れてください</p>
+            <h1 id="ui-title">ラーメン二郎 注文サポート</h1>
+            <p id="ui-subtitle">タイミング別に設定してください</p>
         </div>
         <div class="lang-select-box">
             <select id="langSelect" onchange="changeLanguage()">
@@ -260,134 +354,231 @@
         </div>
     </div>
 
-    <!-- フォーム本体 -->
-    <div id="formContent">
-        <!-- ニンニク -->
+    <div class="tab-nav">
+        <button class="tab-btn active" onclick="switchTab('pre')" data-key="tab_pre">① 食券提示時（事前申請）</button>
+        <button class="tab-btn" onclick="switchTab('call')" data-key="tab_call">② 提供直前（最後のコール）</button>
+    </div>
+
+    <!-- タブ①：事前申請 -->
+    <div id="tabContentPre" class="tab-content active">
         <div class="option-group">
             <div class="option-header">
-                <span class="option-name" data-key="garlic_title">にんにく (Garlic)</span>
-                <span class="option-sub" data-key="garlic_sub">生ニンニクの有無と量</span>
+                <span class="option-name" data-key="noodle_title">麺の量</span>
+                <span class="option-sub" data-key="noodle_sub">標準は約300g</span>
             </div>
-            <div class="radio-grid" data-category="garlic">
+            <div class="radio-grid">
                 <label class="radio-card">
-                    <input type="radio" name="garlic" value="none" checked onchange="updateCall()">
+                    <input type="radio" name="noodle" value="half" onchange="updateOutput()">
                     <div class="card-content">
-                        <span data-key="opt_none">なし</span>
-                        <span class="jiro-tag">ニンニク抜き</span>
+                        <span data-key="opt_half">半分</span>
+                        <span class="jiro-tag">麺半分</span>
                     </div>
                 </label>
                 <label class="radio-card">
-                    <input type="radio" name="garlic" value="normal" onchange="updateCall()">
+                    <input type="radio" name="noodle" value="less" onchange="updateOutput()">
+                    <div class="card-content">
+                        <span data-key="opt_less">少なめ</span>
+                        <span class="jiro-tag">麺少なめ</span>
+                    </div>
+                </label>
+                <label class="radio-card">
+                    <input type="radio" name="noodle" value="normal" checked onchange="updateOutput()">
+                    <div class="card-content">
+                        <span data-key="opt_normal">普通 (標準)</span>
+                        <span class="jiro-tag">（言わない）</span>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <div class="option-group">
+            <div class="option-header">
+                <span class="option-name" data-key="firm_title">麺の硬さ</span>
+                <span class="option-sub" data-key="firm_sub">茹で加減の調整</span>
+            </div>
+            <div class="radio-grid">
+                <label class="radio-card">
+                    <input type="radio" name="firm" value="soft" onchange="updateOutput()">
+                    <div class="card-content">
+                        <span data-key="opt_soft">やわらかめ</span>
+                        <span class="jiro-tag">やわらかめ</span>
+                    </div>
+                </label>
+                <label class="radio-card">
+                    <input type="radio" name="firm" value="normal" checked onchange="updateOutput()">
                     <div class="card-content">
                         <span data-key="opt_normal">普通</span>
+                        <span class="jiro-tag">（言わない）</span>
+                    </div>
+                </label>
+                <label class="radio-card">
+                    <input type="radio" name="firm" value="hard" onchange="updateOutput()">
+                    <div class="card-content">
+                        <span data-key="opt_hard">硬め</span>
+                        <span class="jiro-tag">硬め</span>
+                    </div>
+                </label>
+            </div>
+        </div>
+
+        <div class="option-group">
+            <div class="option-header">
+                <span class="option-name" data-key="liquid_fat_title">スープの油</span>
+                <span class="option-sub" data-key="liquid_fat_sub">スープ表面の液体油の調整</span>
+            </div>
+            <div class="option-note" data-key="liquid_fat_note">
+                💡 スープ自体のコッテリ感を減らしたい時。「トッピングの背脂」は次のステップ（最後のコール）で指定します。
+            </div>
+            <div class="radio-grid cols-2">
+                <label class="radio-card">
+                    <input type="radio" name="liquidFat" value="less" onchange="updateOutput()">
+                    <div class="card-content">
+                        <span data-key="opt_liquid_less">少なめにする</span>
+                        <span class="jiro-tag">アブラ少なめ</span>
+                    </div>
+                </label>
+                <label class="radio-card">
+                    <input type="radio" name="liquidFat" value="normal" checked onchange="updateOutput()">
+                    <div class="card-content">
+                        <span data-key="opt_normal">普通</span>
+                        <span class="jiro-tag">（言わない）</span>
+                    </div>
+                </label>
+            </div>
+        </div>
+    </div>
+
+    <!-- タブ②：最終コール -->
+    <div id="tabContentCall" class="tab-content">
+        <div class="option-group">
+            <div class="option-header">
+                <span class="option-name" data-key="garlic_title">にんにく</span>
+                <span class="option-sub" data-key="garlic_sub">生ニンニクの有無と量</span>
+            </div>
+            <div class="radio-grid cols-4">
+                <label class="radio-card">
+                    <input type="radio" name="garlic" value="none" checked onchange="updateOutput()">
+                    <div class="card-content">
+                        <span data-key="opt_none">なし (デフォルト)</span>
+                        <span class="jiro-tag">（言わない）</span>
+                    </div>
+                </label>
+                <label class="radio-card">
+                    <input type="radio" name="garlic" value="normal" onchange="updateOutput()">
+                    <div class="card-content">
+                        <span data-key="opt_normal">普通 (入れる)</span>
                         <span class="jiro-tag">ニンニク</span>
                     </div>
                 </label>
                 <label class="radio-card">
-                    <input type="radio" name="garlic" value="more" onchange="updateCall()">
+                    <input type="radio" name="garlic" value="more" onchange="updateOutput()">
                     <div class="card-content">
-                        <span data-key="opt_more">多め</span>
+                        <span data-key="opt_more">多め (マシ)</span>
                         <span class="jiro-tag">ニンニクマシ</span>
                     </div>
                 </label>
                 <label class="radio-card">
-                    <input type="radio" name="garlic" value="moshimashi" onchange="updateCall()">
+                    <input type="radio" name="garlic" value="moshimashi" onchange="updateOutput()">
                     <div class="card-content">
-                        <span data-key="opt_moshimashi">さらに多め</span>
+                        <span data-key="opt_moshimashi">さらに多め (マシマシ)</span>
                         <span class="jiro-tag">ニンニクマシマシ</span>
                     </div>
                 </label>
             </div>
         </div>
 
-        <!-- ヤサイ -->
         <div class="option-group">
             <div class="option-header">
-                <span class="option-name" data-key="veg_title">ヤサイ (Vegetables)</span>
+                <span class="option-name" data-key="veg_title">ヤサイ</span>
                 <span class="option-sub" data-key="veg_sub">もやしとキャベツの量</span>
             </div>
-            <div class="radio-grid" data-category="veg">
+            <div class="radio-grid">
                 <label class="radio-card">
-                    <input type="radio" name="veg" value="normal" checked onchange="updateCall()">
+                    <input type="radio" name="veg" value="normal" checked onchange="updateOutput()">
                     <div class="card-content">
-                        <span data-key="opt_normal">普通</span>
-                        <span class="jiro-tag">（そのまま）</span>
+                        <span data-key="opt_veg_normal">普通 (デフォルト)</span>
+                        <span class="jiro-tag">（言わない）</span>
                     </div>
                 </label>
                 <label class="radio-card">
-                    <input type="radio" name="veg" value="more" onchange="updateCall()">
+                    <input type="radio" name="veg" value="more" onchange="updateOutput()">
                     <div class="card-content">
-                        <span data-key="opt_more">多め</span>
-                        <span class="jiro-tag">ヤサイマシ</span>
+                        <span data-key="opt_more">多め (マシ)</span>
+                        <span class="jiro-tag">ヤサイ</span>
                     </div>
                 </label>
                 <label class="radio-card">
-                    <input type="radio" name="veg" value="moshimashi" onchange="updateCall()">
+                    <input type="radio" name="veg" value="moshimashi" onchange="updateOutput()">
                     <div class="card-content">
-                        <span data-key="opt_moshimashi">さらに多め</span>
+                        <span data-key="opt_moshimashi">さらに多め (マシマシ)</span>
                         <span class="jiro-tag">ヤサイマシマシ</span>
                     </div>
                 </label>
             </div>
         </div>
 
-        <!-- アブラ -->
         <div class="option-group">
             <div class="option-header">
-                <span class="option-name" data-key="fat_title">アブラ (Back Fat)</span>
-                <span class="option-sub" data-key="fat_sub">背脂の量</span>
+                <span class="option-name" data-key="fat_title">背脂トッピング (アブラ)</span>
+                <span class="option-sub" data-key="fat_sub">固形背脂の追加</span>
             </div>
-            <div class="radio-grid" data-category="fat">
+            <div class="radio-grid cols-4">
                 <label class="radio-card">
-                    <input type="radio" name="fat" value="none" checked onchange="updateCall()">
+                    <input type="radio" name="fat" value="none" checked onchange="updateOutput()">
                     <div class="card-content">
-                        <span data-key="opt_none">なし</span>
-                        <span class="jiro-tag">アブラ抜き</span>
+                        <span data-key="opt_none">なし (デフォルト)</span>
+                        <span class="jiro-tag">（言わない）</span>
                     </div>
                 </label>
                 <label class="radio-card">
-                    <input type="radio" name="fat" value="normal" checked onchange="updateCall()">
+                    <input type="radio" name="fat" value="normal" onchange="updateOutput()">
                     <div class="card-content">
-                        <span data-key="opt_normal">普通</span>
-                        <span class="jiro-tag">（そのまま）</span>
+                        <span data-key="opt_normal">普通 (入れる)</span>
+                        <span class="jiro-tag">アブラ</span>
                     </div>
                 </label>
                 <label class="radio-card">
-                    <input type="radio" name="fat" value="more" onchange="updateCall()">
+                    <input type="radio" name="fat" value="more" onchange="updateOutput()">
                     <div class="card-content">
-                        <span data-key="opt_more">多め</span>
+                        <span data-key="opt_more">多め (マシ)</span>
                         <span class="jiro-tag">アブラマシ</span>
                     </div>
                 </label>
                 <label class="radio-card">
-                    <input type="radio" name="fat" value="moshimashi" onchange="updateCall()">
+                    <input type="radio" name="fat" value="moshimashi" onchange="updateOutput()">
                     <div class="card-content">
-                        <span data-key="opt_moshimashi">さらに多め</span>
+                        <span data-key="opt_moshimashi">さらに多め (マシマシ)</span>
                         <span class="jiro-tag">アブラマシマシ</span>
                     </div>
                 </label>
             </div>
         </div>
 
-        <!-- カラメ -->
         <div class="option-group">
             <div class="option-header">
-                <span class="option-name" data-key="sauce_title">カラメ (Soy Sauce)</span>
-                <span class="option-sub" data-key="sauce_sub">醤油ダレ（追加）の有無</span>
+                <span class="option-name" data-key="sauce_title">カラメ (醤油ダレ)</span>
+                <span class="option-sub" data-key="sauce_sub">醤油ダレの追加</span>
             </div>
-            <div class="radio-grid cols-2" data-category="sauce">
+            <div class="radio-grid cols-3">
                 <label class="radio-card">
-                    <input type="radio" name="sauce" value="none" checked onchange="updateCall()">
+                    <input type="radio" name="sauce" value="none" checked onchange="updateOutput()">
                     <div class="card-content">
-                        <span data-key="opt_none">なし</span>
-                        <span class="jiro-tag">（そのまま）</span>
+                        <span data-key="opt_none">なし (デフォルト)</span>
+                        <span class="jiro-tag">（言わない）</span>
                     </div>
                 </label>
                 <label class="radio-card">
-                    <input type="radio" name="sauce" value="more" onchange="updateCall()">
+                    <input type="radio" name="sauce" value="more" onchange="updateOutput()">
                     <div class="card-content">
-                        <span data-key="opt_sauce_add">追加する</span>
+                        <span data-key="opt_sauce_add">追加する (カラメ)</span>
                         <span class="jiro-tag">カラメ</span>
+                    </div>
+                </label>
+                <label class="radio-card">
+                    <input type="radio" name="sauce" value="extreme" onchange="checkKarakaraWarning(this)">
+                    <div class="card-content">
+                        <span data-key="opt_sauce_extreme">極限まで (カラカラ)</span>
+                        <span class="jiro-tag" style="background:#c9171e; color:#fff;">⚠️ 激辛注意</span>
                     </div>
                 </label>
             </div>
@@ -396,18 +587,18 @@
 
     <!-- 結果表示エリア -->
     <div class="result-box">
-        <h2 data-key="res_title">生成されたコール（注文文）</h2>
+        <h2 id="resHeaderTitle" data-key="res_pre_title">【事前申請】伝える内容</h2>
         <div class="result-row">
-            <span class="label">漢字:</span>
+            <span class="label">日本語:</span>
             <div class="result-text" id="resKanji">そのままで</div>
         </div>
-        <div class="result-row" style="margin-top: 8px;">
+        <div class="result-row" style="margin-top: 6px;">
             <span class="label">ひらがな:</span>
-            <div class="result-text" id="resKana" style="font-size: 1.05rem;">そのままで</div>
+            <div class="result-text" id="resKana" style="font-size: 1rem;">そのままで</div>
         </div>
-        <div class="result-row" style="margin-top: 8px;">
+        <div class="result-row" style="margin-top: 6px;">
             <span class="label">ローマ字:</span>
-            <div class="result-text" id="resRomaji" style="font-size: 1rem; color: #555;">sonomama de</div>
+            <div class="result-text" id="resRomaji" style="font-size: 0.95rem; color: #555;">sonomamade</div>
         </div>
 
         <div class="btn-container">
@@ -418,70 +609,158 @@
     </div>
 </div>
 
+<!-- カラカラ警告モーダル -->
+<div id="karakaraModal" class="modal">
+    <div class="modal-content">
+        <h3 data-key="modal_title">⚠️ 非常に塩辛いため注意！</h3>
+        <p data-key="modal_text">「カラカラ」は醤油ダレを限界まで追加する上級者向けのオプションです。初心者の場合、極端に塩辛くなり食べ切れない可能性があります。本当に選択しますか？</p>
+        <button class="modal-btn" onclick="closeKarakaraModal()" data-key="modal_btn">理解して選択する</button>
+    </div>
+</div>
+
 <script>
-    // 多言語辞書
+    let currentTab = 'pre';
+
     const i18n = {
         ja: {
-            title: "ラーメン二郎 コールオーダー",
-            subtitle: "お好みにチェックを入れてください",
-            garlic_title: "にんにく (Garlic)", garlic_sub: "生ニンニクの有無と量",
-            veg_title: "ヤサイ (Vegetables)", veg_sub: "もやしとキャベツの量",
-            fat_title: "アブラ (Back Fat)", fat_sub: "背脂の量",
-            sauce_title: "カラメ (Soy Sauce)", sauce_sub: "醤油ダレ（追加）の有無",
-            opt_none: "なし", opt_normal: "普通", opt_more: "多め", opt_moshimashi: "さらに多め", opt_sauce_add: "追加する",
-            res_title: "生成されたコール（注文文）",
+            title: "ラーメン二郎 注文サポート",
+            subtitle: "タイミング別に設定してください",
+            tab_pre: "① 食券提示時（事前申請）",
+            tab_call: "② 提供直前（最後のコール）",
+            noodle_title: "麺の量", noodle_sub: "標準は約300g",
+            firm_title: "麺の硬さ", firm_sub: "茹で加減の調整",
+            liquid_fat_title: "スープの油", liquid_fat_sub: "スープ表面の液体油の調整",
+            liquid_fat_note: "💡 スープ自体のコッテリ感を減らしたい時。「トッピングの背脂」は次のステップ（最後のコール）で指定します。",
+            garlic_title: "にんにく", garlic_sub: "生ニンニクの有無と量",
+            veg_title: "ヤサイ", veg_sub: "もやしとキャベツの量",
+            fat_title: "背脂トッピング (アブラ)", fat_sub: "固形背脂の追加",
+            sauce_title: "カラメ (醤油ダレ)", sauce_sub: "醤油ダレの追加",
+            opt_half: "半分", opt_less: "少なめ", opt_normal: "普通", opt_hard: "硬め", opt_soft: "やわらかめ",
+            opt_liquid_less: "少なめにする", opt_none: "なし", opt_more: "多め (マシ)", opt_moshimashi: "さらに多め (マシマシ)", 
+            opt_veg_normal: "普通 (デフォルト)", opt_sauce_add: "追加する (カラメ)", opt_sauce_extreme: "極限まで (カラカラ)",
+            res_pre_title: "【事前申請】伝える内容",
+            res_call_title: "【最後のコール】伝える内容",
             btn_speak: "🔊 音声で再生する", btn_copy: "📋 コピーする",
-            copied: "コピーしました！"
+            copied: "コピーしました！",
+            modal_title: "⚠️ 非常に塩辛いため注意！",
+            modal_text: "「カラカラ」は醤油ダレを限界まで追加する上級者向けのオプションです。初心者の場合、極端に塩辛くなり食べ切れない可能性があります。本当に選択しますか？",
+            modal_btn: "理解して選択する"
         },
         en: {
-            title: "Ramen Jiro Call Order",
-            subtitle: "Select your preferences",
-            garlic_title: "Garlic (Ninniku)", garlic_sub: "Amount of raw garlic",
-            veg_title: "Vegetables (Yasai)", veg_sub: "Amount of sprouts & cabbage",
-            fat_title: "Back Fat (Abura)", fat_sub: "Amount of pork back fat",
+            title: "Ramen Jiro Order Support",
+            subtitle: "Set according to timing",
+            tab_pre: "1. Show Ticket (Pre-request)",
+            tab_call: "2. Before Serving (Final Call)",
+            noodle_title: "Noodle Amount", noodle_sub: "Standard is ~300g",
+            firm_title: "Noodle Texture", firm_sub: "Boiling preference",
+            liquid_fat_title: "Liquid Fat", liquid_fat_sub: "Soup oil amount",
+            liquid_fat_note: "💡 To reduce soup oil richness. 'Back fat toppings' are set in the next step (Final Call).",
+            garlic_title: "Garlic", garlic_sub: "Raw garlic amount",
+            veg_title: "Vegetables", veg_sub: "Sprouts & cabbage",
+            fat_title: "Back Fat (Abura)", fat_sub: "Pork back fat",
             sauce_title: "Soy Sauce (Karame)", sauce_sub: "Extra soup sauce",
-            opt_none: "None", opt_normal: "Normal", opt_more: "Extra", opt_moshimashi: "Double Extra", opt_sauce_add: "Add",
-            res_title: "Generated Call",
-            btn_speak: "🔊 Speak Call", btn_copy: "📋 Copy",
-            copied: "Copied to clipboard!"
+            opt_half: "Half", opt_less: "Less", opt_normal: "Normal", opt_hard: "Firm", opt_soft: "Soft",
+            opt_liquid_less: "Less oil", opt_none: "None", opt_more: "Extra (Mashi)", opt_moshimashi: "Double (Mashimashi)", 
+            opt_veg_normal: "Normal (Default)", opt_sauce_add: "Add (Karame)", opt_sauce_extreme: "Extreme (Karakara)",
+            res_pre_title: "【Pre-request】What to say",
+            res_call_title: "【Final Call】What to say",
+            btn_speak: "🔊 Speak", btn_copy: "📋 Copy",
+            copied: "Copied!",
+            modal_title: "⚠️ Extremely Salty Warning!",
+            modal_text: "'Karakara' adds maximum soy sauce for advanced users only. It may become extremely salty and hard to finish for beginners. Are you sure?",
+            modal_btn: "I understand"
         },
         "zh-CN": {
-            title: "拉面次郎 点单配置",
-            subtitle: "请选择您的偏好设置",
-            garlic_title: "大蒜 (Ninniku)", garlic_sub: "生蒜的份量",
-            veg_title: "蔬菜 (Yasai)", veg_sub: "豆芽和卷心菜的份量",
-            fat_title: "猪背脂 (Abura)", fat_sub: "背脂的份量",
-            sauce_title: "酱油酱汁 (Karame)", sauce_sub: "是否增加酱汁",
-            opt_none: "不要", opt_normal: "普通", opt_more: "多", opt_moshimashi: "超多", opt_sauce_add: "加量",
-            res_title: "生成的点单暗号 (Call)",
-            btn_speak: "🔊 语音播放", btn_copy: "📋 复制文本",
-            copied: "已复制!"
+            title: "拉面次郎 点单助手",
+            subtitle: "请根据时机进行设置",
+            tab_pre: "① 交券时（事前申请）",
+            tab_call: "② 出餐前（最后呼叫 Call）",
+            noodle_title: "面条分量", noodle_sub: "标准约300g",
+            firm_title: "面条硬度", firm_sub: "煮面软硬度",
+            liquid_fat_title: "汤面浮油", liquid_fat_sub: "调整汤面油量",
+            liquid_fat_note: "💡 用于减少汤底本身的油腻感。“背脂配料”请在下一步（最后呼叫）中设置。",
+            garlic_title: "大蒜", garlic_sub: "生蒜分量",
+            veg_title: "蔬菜", veg_sub: "豆芽和卷心菜",
+            fat_title: "背脂 (Abura)", fat_sub: "添加背脂",
+            sauce_title: "酱油酱汁 (Karame)", sauce_sub: "添加酱油酱汁",
+            opt_half: "半份", opt_less: "少量", opt_normal: "普通", opt_hard: "偏硬", opt_soft: "偏软",
+            opt_liquid_less: "少油", opt_none: "不要", opt_more: "多 (Mashi)", opt_moshimashi: "超多 (Mashimashi)", 
+            opt_veg_normal: "普通 (默认)", opt_sauce_add: "加量 (Karame)", opt_sauce_extreme: "极咸 (Karakara)",
+            res_pre_title: "【事前申请】需要说的话",
+            res_call_title: "【最后呼叫】需要说的话",
+            btn_speak: "🔊 语音播放", btn_copy: "📋 复制",
+            copied: "已复制!",
+            modal_title: "⚠️ 极咸警告！",
+            modal_text: "“Karakara”是极限加重酱油味的资深食客选项。初学者可能会觉得过咸而无法吃完。确定要选择吗？",
+            modal_btn: "我已知晓"
         },
         "zh-TW": {
-            title: "拉麵次郎 點單配置",
-            subtitle: "請選擇您的偏好設定",
-            garlic_title: "大蒜 (Ninniku)", garlic_sub: "生蒜的份量",
-            veg_title: "蔬菜 (Yasai)", veg_sub: "豆芽和高麗菜的份量",
-            fat_title: "豬背脂 (Abura)", fat_sub: "背脂的份量",
-            sauce_title: "醬油醬汁 (Karame)", sauce_sub: "是否增加醬汁",
-            opt_none: "不要", opt_normal: "普通", opt_more: "多", opt_moshimashi: "超多", opt_sauce_add: "加量",
-            res_title: "產生的點單暗號 (Call)",
-            btn_speak: "🔊 語音播放", btn_copy: "📋 複製文字",
-            copied: "已複製!"
+            title: "拉麵次郎 點單助手",
+            subtitle: "請根據時機進行設定",
+            tab_pre: "① 交券時（事前申請）",
+            tab_call: "② 出餐前（最後呼叫 Call）",
+            noodle_title: "麵條份量", noodle_sub: "標準約300g",
+            firm_title: "麵條硬度", firm_sub: "煮麵軟硬度",
+            liquid_fat_title: "湯面浮油", liquid_fat_sub: "調整湯面油量",
+            liquid_fat_note: "💡 用於減少湯底本身的油膩感。「背脂配料」請在下一步（最後呼叫）中設定。",
+            garlic_title: "大蒜", garlic_sub: "生蒜份量",
+            veg_title: "蔬菜", veg_sub: "豆芽和高麗菜",
+            fat_title: "背脂 (Abura)", fat_sub: "添加背脂",
+            sauce_title: "醬油醬汁 (Karame)", sauce_sub: "添加醬油醬汁",
+            opt_half: "半份", opt_less: "少量", opt_normal: "普通", opt_hard: "偏硬", opt_soft: "偏軟",
+            opt_liquid_less: "少油", opt_none: "不要", opt_more: "多 (Mashi)", opt_moshimashi: "超多 (Mashimashi)", 
+            opt_veg_normal: "普通 (預設)", opt_sauce_add: "加量 (Karame)", opt_sauce_extreme: "極鹹 (Karakara)",
+            res_pre_title: "【事前申請】需要說的話",
+            res_call_title: "【最後呼叫】需要說的話",
+            btn_speak: "🔊 語音播放", btn_copy: "📋 複製",
+            copied: "已複製!",
+            modal_title: "⚠️ 極鹹警告！",
+            modal_text: "「Karakara」是極限加重醬油味的資深老饕選項。初學者可能會覺得過鹹而無法吃完。確定要選擇嗎？",
+            modal_btn: "我已知曉"
         },
         ko: {
-            title: "라면 지로 콜 오더",
-            subtitle: "원하시는 옵션을 선택하세요",
-            garlic_title: "마늘 (Ninniku)", garlic_sub: "생마늘 유무 및 양",
-            veg_title: "야채 (Yasai)", veg_sub: "숙주와 양배추 양",
-            fat_title: "기름 (Abura)", fat_sub: "등기름 양",
-            sauce_title: "간장 (Karame)", sauce_sub: "추가 간장 소스 유무",
-            opt_none: "없음", opt_normal: "보통", opt_more: "많이", opt_moshimashi: "더 많이", opt_sauce_add: "추가",
-            res_title: "생성된 콜 (주문 내용)",
-            btn_speak: "🔊 음성으로 듣기", btn_copy: "📋 복사하기",
-            copied: "클립보드에 복사되었습니다!"
+            title: "라면 지로 주문 서포트",
+            subtitle: "타이밍별로 설정하세요",
+            tab_pre: "① 식권 제출시 (사전 신청)",
+            tab_call: "② 제공 직전 (최종 콜)",
+            noodle_title: "면 양", noodle_sub: "기본 약 300g",
+            firm_title: "면 익기", firm_sub: "삶는 정도",
+            liquid_fat_title: "기름 양", liquid_fat_sub: "국물 위 액체 기름",
+            liquid_fat_note: "💡 국물 자체의 느끼함을 줄이고 싶을 때. '등기름 토핑'은 다음 단계(최종 콜)에서 설정합니다.",
+            garlic_title: "마늘", garlic_sub: "생마늘 양",
+            veg_title: "야채", veg_sub: "숙주와 양배추",
+            fat_title: "등기름 (Abura)", fat_sub: "등기름 추가",
+            sauce_title: "간장 소스 (Karame)", sauce_sub: "간장 소스 추가",
+            opt_half: "절반", opt_less: "적게", opt_normal: "보통", opt_hard: "단단하게", opt_soft: "부드럽게",
+            opt_liquid_less: "기름 적게", opt_none: "없음", opt_more: "많이 (Mashi)", opt_moshimashi: "더 많이 (Mashimashi)", 
+            opt_veg_normal: "보통 (기본)", opt_sauce_add: "추가 (Karame)", opt_sauce_extreme: "극한 (Karakara)",
+            res_pre_title: "【사전 신청】 말할 내용",
+            res_call_title: "【최종 콜】 말할 내용",
+            btn_speak: "🔊 음성 듣기", btn_copy: "📋 복사하기",
+            copied: "복사되었습니다!",
+            modal_title: "⚠️ 매우 짜므로 주의!",
+            modal_text: "'카라카라'는 간장소스를 한계까지 추가하는 상급자용 옵션입니다. 초보자의 경우 극단적으로 짜서 다 먹지 못할 수 있습니다. 정말 선택하시겠습니까?",
+            modal_btn: "이해하고 선택하기"
         }
     };
+
+    function switchTab(tab) {
+        currentTab = tab;
+        document.querySelectorAll('.tab-btn').forEach(btn => btn.classList.remove('active'));
+        document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+
+        const lang = document.getElementById('langSelect').value;
+        if (tab === 'pre') {
+            document.querySelectorAll('.tab-btn')[0].classList.add('active');
+            document.getElementById('tabContentPre').classList.add('active');
+            document.getElementById('resHeaderTitle').innerText = i18n[lang].res_pre_title;
+        } else {
+            document.querySelectorAll('.tab-btn')[1].classList.add('active');
+            document.getElementById('tabContentCall').classList.add('active');
+            document.getElementById('resHeaderTitle').innerText = i18n[lang].res_call_title;
+        }
+        updateOutput();
+    }
 
     function changeLanguage() {
         const lang = document.getElementById('langSelect').value;
@@ -493,64 +772,133 @@
                 el.innerText = dict[key];
             }
         });
+
+        if (currentTab === 'pre') {
+            document.getElementById('resHeaderTitle').innerText = dict.res_pre_title;
+        } else {
+            document.getElementById('resHeaderTitle').innerText = dict.res_call_title;
+        }
+        updateOutput();
     }
 
-    // 完璧な二郎のコールルールに基づく生成ロジック
-    function updateCall() {
-        const garlic = document.querySelector('input[name="garlic"]:checked').value;
-        const veg = document.querySelector('input[name="veg"]:checked').value;
-        const fat = document.querySelector('input[name="fat"]:checked').value;
-        const sauce = document.querySelector('input[name="sauce"]:checked').value;
+    function checkKarakaraWarning(radio) {
+        const modal = document.getElementById('karakaraModal');
+        modal.style.display = 'flex';
+        updateOutput();
+    }
 
-        let kanjiParts = [];
-        let kanaParts = [];
-        let romajiParts = [];
+    function closeKarakaraModal() {
+        const modal = document.getElementById('karakaraModal');
+        modal.style.display = 'none';
+    }
 
-        // 1. ニンニクの処理（必ず何らかの意思表示になる）
-        if (garlic === 'none') {
-            kanjiParts.push('ニンニク抜き'); kanaParts.push('にんにくぬき'); romajiParts.push('ninniku nuki');
-        } else if (garlic === 'normal') {
-            kanjiParts.push('ニンニク'); kanaParts.push('にんにく'); romajiParts.push('ninniku');
-        } else if (garlic === 'more') {
-            kanjiParts.push('ニンニクマシ'); kanaParts.push('にんにくまし'); romajiParts.push('ninniku mashi');
-        } else if (garlic === 'moshimashi') {
-            kanjiParts.push('ニンニクマシマシ'); kanaParts.push('にんにくましまし'); romajiParts.push('ninniku mashi mashi');
-        }
+    function updateOutput() {
+        let kanjiStr = "", kanaStr = "", romajiStr = "";
 
-        // 2. ヤサイの処理（普通ならコールしない）
-        if (veg === 'more') {
-            kanjiParts.push('ヤサイマシ'); kanaParts.push('やさいまし'); romajiParts.push('yasai mashi');
-        } else if (veg === 'moshimashi') {
-            kanjiParts.push('ヤサイマシマシ'); kanaParts.push('やさいましまし'); romajiParts.push('yasai mashi mashi');
-        }
+        if (currentTab === 'pre') {
+            const noodle = document.querySelector('input[name="noodle"]:checked').value;
+            const firm = document.querySelector('input[name="firm"]:checked').value;
+            const liquidFat = document.querySelector('input[name="liquidFat"]:checked').value;
 
-        // 3. アブラの処理（普通・抜きならあえてコールしないことが多いが、抜きの時は明確に、普通なら省略）
-        if (fat === 'none') {
-            kanjiParts.push('アブラ抜き'); kanaParts.push('あぶらぬき'); romajiParts.push('abura nuki');
-        } else if (fat === 'more') {
-            kanjiParts.push('アブラマシ'); kanaParts.push('あぶらまし'); romajiParts.push('abura mashi');
-        } else if (fat === 'moshimashi') {
-            kanjiParts.push('アブラマシマシ'); kanaParts.push('あぶらましまし'); romajiParts.push('abura mashi mashi');
-        }
+            let parts = [], kanaParts = [], romajiParts = [];
 
-        // 4. カラメの処理
-        if (sauce === 'more') {
-            kanjiParts.push('カラメ'); kanaParts.push('からめ'); romajiParts.push('karame');
-        }
+            if (noodle === 'half') {
+                parts.push('麺半分'); kanaParts.push('めんはんぶん'); romajiParts.push('men hanbun');
+            } else if (noodle === 'less') {
+                parts.push('麺少なめ'); kanaParts.push('めんすくなめ'); romajiParts.push('men sukuname');
+            }
 
-        let kanjiStr, kanaStr, romajiStr;
+            if (firm === 'hard') {
+                parts.push('硬め'); kanaParts.push('かため'); romajiParts.push('katame');
+            } else if (firm === 'soft') {
+                parts.push('やわらかめ'); kanaParts.push('やわらかめ'); romajiParts.push('yawarakame');
+            }
 
-        // もしすべてが「デフォルト（ニンニクなし/普通、ヤサイ普通、アブラ普通、カラメなし）」の場合は「そのままで」にする
-        const isDefault = (garlic === 'none' && veg === 'normal' && fat === 'normal' && sauce === 'none');
+            if (liquidFat === 'less') {
+                parts.push('アブラ少なめ'); kanaParts.push('あぶらすくなめ'); romajiParts.push('abura sukuname');
+            }
 
-        if (isDefault) {
-            kanjiStr = 'そのままで';
-            kanaStr = 'そのままで';
-            romajiStr = 'sonomama de';
+            if (parts.length === 0) {
+                kanjiStr = 'そのままで';
+                kanaStr = 'そのままで';
+                romajiStr = 'sonomamade';
+            } else {
+                kanjiStr = parts.join(' ');
+                kanaStr = kanaParts.join(' ');
+                romajiStr = romajiParts.join(' ');
+            }
+
         } else {
-            kanjiStr = kanjiParts.join(' ');
-            kanaStr = kanaParts.join(' ');
-            romajiStr = romajiParts.join(' ');
+            const garlic = document.querySelector('input[name="garlic"]:checked').value;
+            const veg = document.querySelector('input[name="veg"]:checked').value;
+            const fat = document.querySelector('input[name="fat"]:checked').value;
+            const sauce = document.querySelector('input[name="sauce"]:checked').value;
+
+            // 全マシ・全マシマシの判定
+            const isZenMashi = (garlic === 'more' && veg === 'more' && fat === 'more');
+            const isZenMashimashi = (garlic === 'moshimashi' && veg === 'moshimashi' && fat === 'moshimashi');
+
+            let kanjiParts = [], kanaParts = [], romajiParts = [];
+
+            if (isZenMashimashi) {
+                kanjiParts.push('全マシマシ'); kanaParts.push('ぜんましまし'); romajiParts.push('zen mashimashi');
+            } else if (isZenMashi) {
+                kanjiParts.push('全マシ'); kanaParts.push('ぜんまし'); romajiParts.push('zen mashi');
+            } else {
+                // 個別の処理（ニンニク・アブラは普通ならそのままの名前、多めならマシ）
+                if (garlic === 'normal') {
+                    kanjiParts.push('ニンニク'); kanaParts.push('にんにく'); romajiParts.push('ninniku');
+                } else if (garlic === 'more') {
+                    kanjiParts.push('ニンニクマシ'); kanaParts.push('にんにくまし'); romajiParts.push('ninniku mashi');
+                } else if (garlic === 'moshimashi') {
+                    kanjiParts.push('ニンニクマシマシ'); kanaParts.push('にんにくましまし'); romajiParts.push('ninniku mashimashi');
+                }
+
+                if (veg === 'more') {
+                    kanjiParts.push('ヤサイ'); kanaParts.push('やさい'); romajiParts.push('yasai');
+                } else if (veg === 'moshimashi') {
+                    kanjiParts.push('ヤサイマシマシ'); kanaParts.push('やさいましまし'); romajiParts.push('yasai mashimashi');
+                }
+
+                if (fat === 'normal') {
+                    kanjiParts.push('アブラ'); kanaParts.push('あぶら'); romajiParts.push('abura');
+                } else if (fat === 'more') {
+                    kanjiParts.push('アブラマシ'); kanaParts.push('あぶらまし'); romajiParts.push('abura mashi');
+                } else if (fat === 'moshimashi') {
+                    kanjiParts.push('アブラマシマシ'); kanaParts.push('あぶらましまし'); romajiParts.push('abura mashimashi');
+                }
+            }
+
+            // カラメ・カラカラの追加処理
+            if (sauce === 'more') {
+                if (isZenMashimashi) {
+                    kanjiParts[0] = '全マシマシカラメ'; kanaParts[0] = 'ぜんましましかからめ'; romajiParts[0] = 'zen mashimashi karame';
+                } else if (isZenMashi) {
+                    kanjiParts[0] = '全マシカラメ'; kanaParts[0] = 'ぜんましかからめ'; romajiParts[0] = 'zen mashi karame';
+                } else {
+                    kanjiParts.push('カラメ'); kanaParts.push('からめ'); romajiParts.push('karame');
+                }
+            } else if (sauce === 'extreme') {
+                if (isZenMashimashi) {
+                    kanjiParts[0] = '全マシマシカラカラ'; kanaParts[0] = 'ぜんましましかからから'; romajiParts[0] = 'zen mashimashi karakara';
+                } else if (isZenMashi) {
+                    kanjiParts[0] = '全マシカラカラ'; kanaParts[0] = 'ぜんましかからから'; romajiParts[0] = 'zen mashi karakara';
+                } else {
+                    kanjiParts.push('カラカラ'); kanaParts.push('からから'); romajiParts.push('karakara');
+                }
+            }
+
+            const isDefault = (garlic === 'none' && veg === 'normal' && fat === 'none' && sauce === 'none');
+
+            if (isDefault) {
+                kanjiStr = 'そのままで';
+                kanaStr = 'そのままで';
+                romajiStr = 'sonomamade';
+            } else {
+                kanjiStr = kanjiParts.join(' ');
+                kanaStr = kanaParts.join(' ');
+                romajiStr = romajiParts.join(' ');
+            }
         }
 
         document.getElementById('resKanji').innerText = kanjiStr;
@@ -558,7 +906,6 @@
         document.getElementById('resRomaji').innerText = romajiStr;
     }
 
-    // 音声読み上げ (Web Speech API)
     function speakCall() {
         if (!('speechSynthesis' in window)) {
             alert('お使いのブラウザは音声読み上げに対応していません。');
@@ -572,7 +919,6 @@
         window.speechSynthesis.speak(utterance);
     }
 
-    // コピー機能
     function copyCall() {
         const text = document.getElementById('resKanji').innerText;
         navigator.clipboard.writeText(text).then(() => {
@@ -586,9 +932,8 @@
         });
     }
 
-    // 初期化実行
     window.onload = function() {
-        updateCall();
+        updateOutput();
     };
 </script>
 
